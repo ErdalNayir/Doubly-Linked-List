@@ -1,0 +1,17 @@
+# depslib dependency file v1.0
+1640459143 source:c:\users\erdal\onedrive\masaüstü\veri yapıları\doublylist\main.c
+	<stdio.h>
+	<stdlib.h>
+	"DoublyList.h"
+	<stdbool.h>
+
+1640376128 c:\users\erdal\onedrive\masaüstü\veri yapıları\doublylist\dll.h
+	<stdio.h>
+	<stdlib.h>
+	<stdbool.h>
+
+1640460158 c:\users\erdal\onedrive\masaüstü\veri yapıları\doublylist\doublylist.h
+	<stdio.h>
+	<stdlib.h>
+	<stdbool.h>
+
