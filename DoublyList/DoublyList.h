@@ -14,9 +14,20 @@ typedef struct list
 {
     int   count;
     NODE* head;
+    NODE* rear;
 } LIST;
 
 //	Prototype Declarations
+NODE* NodeOlustur(int data);
+void addNode(LIST* pList,NODE* pNew);
+void traverseBackward (LIST* pList);
+void removeNode(LIST* pList,int index);
+LIST* destroyList (LIST* pList);
+void SearchNode(LIST* pList,int index);
+LIST* createList();
+void listCount(LIST* pList);
+
+
 
 LIST* createList()
 {
@@ -29,8 +40,8 @@ LIST* createList()
 	   {
 	    list->head    = NULL;
 	    list->count   = 0;
+	    list->rear=NULL;
 	   } // if
-    printf("Liste Olusturuldu\n\n");
 	return list;
 }	// createList
 
@@ -44,7 +55,7 @@ NODE* NodeOlustur(int data) { // Bu kod ile kod tekrarlarindan kaciniyoruz.
 	return pNew;
 }
 
-void addNode (LIST* pList, int dataInPtr)
+void addNode (LIST* pList, NODE* pNew)
 {
     //BU FONKSIYON YENI EKLENECEK NODE 'U LISTENIN EN SONUNA EKLER
     if(pList==NULL){
@@ -53,46 +64,82 @@ void addNode (LIST* pList, int dataInPtr)
         return;
     }
 
-	NODE* pNew = NodeOlustur(dataInPtr);
-	NODE* temp = pList->head; // Bununla orjinal listeye zarar vermemis oluyoruz
 
 	if(pList->head==NULL || pList->count==0) { // Eger liste bos ise
+
         pNew->index=pList->count;
         pList->count=pList->count+1;
-		pList->head = pNew;
-		printf("Node Eklendi\n\n");
+
+		pList->head = pNew;  //Listenin Head nodunu pNew'e isaret ettiriyoruz
+        pList->rear=pNew;    //Listenin rear nodunu pNew'e isaret ettiriyoruz
+        printf("Node Eklendi\n\n");
 		return;
 	}
-	while(temp->Forw != NULL) temp = temp->Forw; // Bu En son node kadar gidecek.
+	  else{
+            pNew->index=pList->count;
+            pList->count=pList->count+1;
 
-	//En son node gelindiði zaman
-	pNew->index=pList->count;
-	temp->Forw = pNew;
-	pNew->backw = temp;
-	pList->count=pList->count+1;
-
-	printf("Node Eklendi\n\n");
+            pNew->backw=pList->rear; // bu rear en sondaki nodu isaret ediyordu. Bu code ile yeni eklenen node'un back nodu bu nodu isaret eder
+            pList->rear=pNew; //pNew yeni en son node oldugundan listenin rearÄ±nÄ± bu nodu isaret ettiriyoruz
+            pNew->backw->Forw=pNew;  //Data nodu pNew'in back nodu'nu eskiden en sonuncu olan data node'duna isaret ettirmistim. Bu kod ile bu data node'dun Forw nodu yeni eklenen nodu isaret edicek
+            printf("Node Eklendi\n\n");
+        }
 
 }
 
-/*
-void removeNode  (LIST*  pList, void*  keyPtr,
-                  void** dataOutPtr)
+void removeNode(LIST* pList,int index)
 {
-//	Local Definitions
+    if(pList==NULL){
+        printf("\n");
+        printf("Liste silinmis ya da hic olusturulmamis\n\n");
+        return;
+    }
 
-}	// removeNode
+    NODE* temp = pList->head; // Bununla orjinal listeye zarar vermemis oluyoruz
 
+    if(temp==NULL || pList->count==0){  //Liste Bos
+        printf("Liste hicbir node bulunmamaktadir\n\n");
+        return;
+    }
 
+    else if(index>pList->count-1 || index<0){
+        printf("Girdiginiz index liste sinirlari disinda\n\n");
+        return;
+    }
 
-static bool searchNode (LIST*  pList,
-                          void*  pArgu,
-                          void** dataOutPtr)
-{
-//	Local Definitions
+    while(temp->index!=index){
+        temp = temp->Forw;
+    }
 
-}	// retrieveNode
-*/
+    if(index==0 || index==pList->count-1){
+
+        if(index==0){ //bastan silme
+            pList->head=pList->head->Forw;
+            pList->head->backw=NULL;
+            free(pList->head->backw);
+            pList->count=pList->count-1;
+            printf("Bastaki node silindi\n\n");
+        }
+        else if(index==pList->count-1){ //Sondaki node'u silme
+            pList->rear=pList->rear->backw;
+            free(pList->rear->Forw);
+            pList->rear->Forw=NULL;
+            pList->count=pList->count-1;
+            printf("Sondaki node silindi\n\n");
+        }
+
+    }
+    else{ // Ortadaki bir nodu silme
+        temp->Forw->backw=temp->backw;
+        temp->backw->Forw=temp->Forw;
+        free(temp);
+        pList->count=pList->count-1;
+        printf("Sectiginiz node silindi\n\n");
+
+    }
+
+}
+
 
 bool emptyList (LIST* pList)
 {
@@ -100,6 +147,8 @@ bool emptyList (LIST* pList)
 
 	return (pList->count == 0);
 }	// emptyList
+
+
 
 void traverseBackward (LIST* pList)
 {
@@ -109,26 +158,25 @@ void traverseBackward (LIST* pList)
         return;
     }
 
-    NODE* temp = pList->head; // Bununla orjinal listeye zarar vermemis oluyoruz
-	if(temp == NULL || pList->count==0) return; // Bos listedir cikis yap
+    NODE* temp = pList->rear; // Bununla orjinal listeye zarar vermemis oluyoruz
 
+	if(temp == NULL || pList->count==0) // Bos listedir cikis yap
+        return;
 
-	// Ters basmak icin son node'a kadar gidiyoruz
-	while(temp->Forw != NULL) {
-		temp= temp->Forw;
-	}
-	//backw ile geriye doðru gidiyoruz
+	//backw ile geriye doÃ°ru gidiyoruz
 	printf("\n\n");
 	printf("Reverse: \n");
+	int i = pList->count-1;
 	while(temp != NULL) {
-		printf("%d . Node Data: %d \n",temp->index,temp->dataPtr);
+		printf("%d . Node Data: %d \n",i,temp->dataPtr);
 		temp = temp->backw;
+		i--;
 	}
 	printf("\n");
 
 }
 
-int listCount(LIST* pList)
+void listCount(LIST* pList)
 {
 //	Statements
     if(pList==NULL){
@@ -136,22 +184,27 @@ int listCount(LIST* pList)
         printf("Liste silinmis ya da hic olusturulmamis\n\n");
         return;
     }
-	return pList->count;
-
+    printf("Liste Uzunlugu: %d\n\n",pList->count);
 }	// listCount
 
 LIST* destroyList (LIST* pList)
 {
-//	Local Definitions
 
-//	Statements
-	if (pList!=NULL)
-	   {
-	    free (pList);
-        printf("\n\n");
-        printf("Liste Yok edildi\n\n");
+	if (pList)
+    {
+	    NODE* deletenode;
+
+        while(pList->count>0){
+            deletenode    = pList->head;
+            pList->head  = pList->head->Forw;
+            pList->count--;
+            free (deletenode);
+
+        }
+        free(pList);
         return NULL;
-	   } // if
+    } // if
+
     else{
         printf("\n");
         printf("Liste zaten silinmis ya da hic olusturulmamis\n\n");
